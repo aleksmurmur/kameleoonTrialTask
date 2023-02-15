@@ -1,10 +1,9 @@
 package org.aleksmurmur.kameleoon.quotes.dto;
 
 import org.aleksmurmur.kameleoon.common.dto.NamedElement;
-import org.aleksmurmur.kameleoon.user.domain.User;
 
-import java.time.LocalDate;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.TreeMap;
 import java.util.UUID;
 
 public record QuoteResponse(
@@ -12,8 +11,7 @@ public record QuoteResponse(
         String content,
         NamedElement<UUID> userNamedElement,
         Integer score,
-        Map<LocalDate, Integer> chart
-        //TODO chart treemap??
+        TreeMap<LocalDateTime, Integer> voteChart
 
 ) {
 }

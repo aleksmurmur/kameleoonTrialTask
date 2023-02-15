@@ -21,6 +21,7 @@ public class Vote extends UUIDIdentifiableEntity {
     private LocalDateTime voteTime;
     @ManyToOne
     private Quote quote;
+    private int scoreAfterVote;
     @ManyToOne
     private User user;
 }

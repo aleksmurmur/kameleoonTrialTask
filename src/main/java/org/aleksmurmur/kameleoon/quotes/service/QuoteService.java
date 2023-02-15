@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -113,50 +112,22 @@ public class QuoteService {
                 voteType,
                 LocalDateTime.now(),
                 quote,
+                quote.getScore(),
                 user
         ));
         quoteRepository.flush();
         return convertToResponse(quote);
     }
 
-    private Map<LocalDate, Integer> getDateChart(Quote quote) {
+    private TreeMap<LocalDateTime, Integer> getVoteChart(Quote quote) {
         List<Vote> votes = quote.getVotes();
 
-
-
-        //FIXME should work not good
-        Map<LocalDate, Integer> result = new HashMap<>();
-        for (Vote v : votes) {
-            result.merge(v.getVoteTime().toLocalDate(),
-                    switch (v.getType()) {
-                        case UPVOTE -> 1;
-                        case DOWNVOTE -> -1;
-                    }, Integer::sum);
-        }
-
-
-        //FIXME best for now if right - check
-        var map = votes.stream()
-                .sorted(Comparator.comparing(Vote::getVoteTime))
-                .collect(Collectors.toMap(
-                        v -> v.getVoteTime().toLocalDate(),
-                        v -> switch (v.getType()) {
-                            case UPVOTE -> 1;
-                            case DOWNVOTE -> -1;
-                        }, Integer::sum
-                ));
-
-            //FIXME change to best. gives wrong resuilt
         return votes.stream()
-                .sorted(Comparator.comparing(Vote::getVoteTime))
-                .collect(Collectors.groupingBy(
-                        v -> v.getVoteTime().toLocalDate(),
-                        Collectors.summingInt(v ->
-                                        switch (v.getType()) {
-                                            case UPVOTE -> 1;
-                                            case DOWNVOTE -> -1;
-                                        }
-                        )));
+                .collect(Collectors.toMap(Vote::getVoteTime,
+                                Vote::getScoreAfterVote,
+                        (k1, k2) -> k1, TreeMap::new));
+
+
     }
 
     //FIXME stub as it was stated not to add security. Normally should get user from SecurityContextHolder
@@ -183,7 +154,7 @@ public class QuoteService {
                 quote.getContent(),
                 new NamedElement<>(quote.getUser().getId(), quote.getUser().getName()),
                 quote.getScore(),
-                getDateChart(quote)
+                getVoteChart(quote)
         );
     }
 
