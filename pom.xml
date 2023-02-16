@@ -15,7 +15,9 @@
     <description>kameleoonTrialTask</description>
     <properties>
         <java.version>17</java.version>
-        <openApi.version>1.6.14</openApi.version>
+        <openApi.version>2.0.2</openApi.version>
+        <springFox.version>3.0.0</springFox.version>
+        <jacksonModule.version>2.14.2</jacksonModule.version>
     </properties>
     <dependencies>
         <dependency>
@@ -33,11 +35,14 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${openApi.version}</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-parameter-names</artifactId>
+            <version>${jacksonModule.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>

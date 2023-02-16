@@ -7,13 +7,18 @@ import org.aleksmurmur.kameleoon.user.domain.User;
 import org.aleksmurmur.kameleoon.user.dto.UserCreateRequest;
 import org.aleksmurmur.kameleoon.user.dto.UserResponse;
 import org.aleksmurmur.kameleoon.user.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
 
@@ -25,6 +30,7 @@ public class UserService {
     public UserResponse create(UserCreateRequest request) {
         validateEmailIsNew(request.email());
         User createdUser = userRepository.save(toEntity(request));
+        logger.debug(String.format("User %s created", createdUser.getId()));
         return toResponse(createdUser);
     }
 

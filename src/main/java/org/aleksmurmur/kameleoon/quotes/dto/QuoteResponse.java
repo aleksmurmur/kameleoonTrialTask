@@ -9,6 +9,7 @@ import java.util.UUID;
 public record QuoteResponse(
         UUID id,
         String content,
+        LocalDateTime creationDate,
         NamedElement<UUID> userNamedElement,
         Integer score,
         TreeMap<LocalDateTime, Integer> voteChart

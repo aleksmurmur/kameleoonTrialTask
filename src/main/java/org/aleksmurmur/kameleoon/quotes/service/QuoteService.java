@@ -12,6 +12,8 @@ import org.aleksmurmur.kameleoon.quotes.repository.QuoteRepository;
 import org.aleksmurmur.kameleoon.quotes.repository.VoteRepository;
 import org.aleksmurmur.kameleoon.user.domain.User;
 import org.aleksmurmur.kameleoon.user.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuoteService {
+
+    private static final Logger logger = LoggerFactory.getLogger(QuoteService.class);
 
     private final QuoteRepository quoteRepository;
     private final UserRepository userRepository;
@@ -39,6 +43,7 @@ public class QuoteService {
     public QuoteResponse create(QuoteCreateOrUpdateRequest request) {
         User user = getRandomUser();
         Quote createdQuote = quoteRepository.save(convertToEntity(request, user));
+        logger.debug(String.format("Quote %s created", createdQuote.getId()));
         return convertToResponse(createdQuote);
     }
 
@@ -48,6 +53,7 @@ public class QuoteService {
         Quote quote = quoteRepository.findByIdAndUserId(quoteId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Quote was not found by id %s", quoteId)));
         quote = quoteRepository.save(updateEntity(request, quote));
+        logger.debug(String.format("Quote %s updated", quote.getId()));
         return convertToResponse(quote);
     }
 
@@ -57,6 +63,7 @@ public class QuoteService {
         Quote quote = quoteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Quote was not found by id %s", id)));
         quoteRepository.delete(quote);
+        logger.debug(String.format("Quote %s deleted", quote.getId()));
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +82,7 @@ public class QuoteService {
 
     @Transactional(readOnly = true)
     public Page<QuoteResponse> getPage(Pageable pageable) {
-        return quoteRepository.findAll(pageable)
+        return quoteRepository.findAllByOrderByCreationDateDesc(pageable)
                 .map(this::convertToResponse);
     }
 
@@ -116,6 +123,7 @@ public class QuoteService {
                 user
         ));
         quoteRepository.flush();
+        logger.debug(String.format("Quote %s got %s from user %s", quote.getId(), voteType.name(), user.getId()));
         return convertToResponse(quote);
     }
 
@@ -152,6 +160,7 @@ public class QuoteService {
         return new QuoteResponse(
                 quote.getId(),
                 quote.getContent(),
+                quote.getCreationDate(),
                 new NamedElement<>(quote.getUser().getId(), quote.getUser().getName()),
                 quote.getScore(),
                 getVoteChart(quote)
